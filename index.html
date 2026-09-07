@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Age Calculator — Know Your Exact Age</title>
+<style>
+  :root{
+    --bg-0:#0d1117;
+    --bg-1:#131a24;
+    --panel:#161d29;
+    --line: rgba(230,225,210,0.09);
+    --sand: #e8b360;
+    --sand-soft: rgba(232,179,96,0.14);
+    --text-hi:#f2ede0;
+    --text-mid:#9aa4b2;
+    --text-low:#5e6774;
+    --error:#e0705f;
+  }
+
+  *{ box-sizing:border-box; }
+
+  html,body{
+    margin:0; padding:0;
+    min-height:100vh;
+    background:
+      radial-gradient(1100px 600px at 15% -10%, #1b2433 0%, transparent 60%),
+      radial-gradient(900px 500px at 100% 110%, #1a2130 0%, transparent 55%),
+      var(--bg-0);
+    color:var(--text-hi);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .wrap{
+    max-width:760px;
+    margin:0 auto;
+    padding:40px 24px 80px;
+    text-align:center;
+  }
+
+  .credit{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-size:12px;
+    color:var(--text-low);
+    background:var(--bg-1);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:6px 15px;
+    margin-bottom:32px;
+    letter-spacing:0.01em;
+  }
+  .credit .dot{
+    width:4px; height:4px;
+    border-radius:50%;
+    background:var(--sand);
+  }
+  .credit b{
+    color:var(--text-mid);
+    font-weight:600;
+  }
+
+  header.hero{
+    margin-bottom:44px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+  .hero .kicker{
+    font-size:13px;
+    color:var(--sand);
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    margin-bottom:14px;
+    font-weight:600;
+  }
+  .hero h1{
+    font-family: Georgia, 'Times New Roman', 'Noto Serif', serif;
+    font-weight:600;
+    font-size:clamp(32px, 6vw, 44px);
+    line-height:1.1;
+    margin:0 0 16px;
+    color:var(--text-hi);
+    max-width:11ch;
+  }
+  .hero p{
+    color:var(--text-mid);
+    font-size:15px;
+    line-height:1.65;
+    max-width:46ch;
+    margin:0 auto;
+  }
+
+  form.card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:32px;
+    max-width:420px;
+    margin:0 auto;
+    display:flex;
+    flex-direction:column;
+    gap:22px;
+    box-shadow: 0 20px 50px -25px rgba(0,0,0,0.55);
+  }
+
+  .field{
+    display:flex;
+    flex-direction:column;
+    gap:9px;
+    align-items:center;
+  }
+  .field label{
+    font-size:12.5px;
+    color:var(--text-mid);
+    letter-spacing:0.01em;
+    display:flex;
+    justify-content:center;
+    gap:8px;
+    width:100%;
+  }
+  .field label .opt-tag{
+    color:var(--text-low);
+    font-size:11.5px;
+  }
+  .field input{
+    background:var(--bg-1);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:13px 14px;
+    color:var(--text-hi);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size:15px;
+    outline:none;
+    text-align:center;
+    width:100%;
+    transition:border-color .15s ease, box-shadow .15s ease;
+    color-scheme: dark;
+  }
+  .field input:focus{
+    border-color:var(--sand);
+    box-shadow:0 0 0 3px var(--sand-soft);
+  }
+
+  .row2{
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+  }
+
+  .actions{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    justify-content:center;
+    flex-wrap:wrap;
+  }
+
+  .theme-row{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    justify-content:center;
+    padding-top:18px;
+    margin-top:2px;
+    border-top:1px solid var(--line);
+  }
+
+  button.primary{
+    background:var(--sand);
+    color:#241a08;
+    border:none;
+    border-radius:10px;
+    padding:13px 24px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-weight:600;
+    font-size:14.5px;
+    letter-spacing:0.01em;
+    cursor:pointer;
+    transition:transform .12s ease, filter .12s ease, box-shadow .12s ease;
+    box-shadow: 0 8px 20px -8px var(--sand-soft);
+  }
+  button.primary:hover{ filter:brightness(1.08); }
+  button.primary:active{ transform:scale(0.98); }
+
+  button.ghost{
+    background:transparent;
+    color:var(--text-mid);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:13px 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size:14px;
+    cursor:pointer;
+    transition:border-color .15s ease, color .15s ease;
+  }
+  button.ghost:hover{ border-color:var(--text-low); color:var(--text-hi); }
+
+  .msg{
+    font-size:13.5px;
+    color:var(--error);
+    display:none;
+  }
+  .msg.show{ display:block; }
+
+  /* theme swatches */
+  .theme-row span{
+    font-size:12px;
+    color:var(--text-low);
+  }
+  .swatch{
+    width:22px; height:22px;
+    border-radius:50%;
+    cursor:pointer;
+    border:2px solid transparent;
+    transition:border-color .15s ease, transform .1s ease;
+  }
+  .swatch:hover{ transform:scale(1.1); }
+  .swatch.active{ border-color:var(--text-hi); }
+
+  /* results */
+  #result{
+    margin-top:40px;
+    display:none;
+    max-width:520px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  #result.show{ display:block; }
+
+  .lived-since{
+    color:var(--text-mid);
+    font-size:14px;
+    margin-bottom:22px;
+    text-align:center;
+  }
+  .lived-since b{ color:var(--text-hi); font-weight:600; }
+
+  .big-age{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:34px 28px;
+    margin-bottom:20px;
+    position:relative;
+    overflow:hidden;
+    box-shadow: 0 20px 50px -28px rgba(0,0,0,0.5);
+  }
+  .big-age::before{
+    content:"";
+    position:absolute;
+    top:-40%; right:-10%;
+    width:280px; height:280px;
+    background:radial-gradient(circle, var(--sand-soft) 0%, transparent 70%);
+    pointer-events:none;
+  }
+  .big-age .label{
+    font-size:13px;
+    color:var(--text-mid);
+    margin-bottom:6px;
+  }
+  .big-age .value{
+    font-family: Georgia, 'Times New Roman', 'Noto Serif', serif;
+    font-weight:700;
+    font-size:clamp(30px, 7vw, 52px);
+    line-height:1.1;
+    color:var(--text-hi);
+    display:flex;
+    align-items:baseline;
+    justify-content:center;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .big-age .value .unit{
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size:16px;
+    font-weight:500;
+    color:var(--sand);
+  }
+  .big-age .sub{
+    margin-top:10px;
+    font-size:14px;
+    color:var(--text-mid);
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:14px;
+  }
+  @media (max-width:640px){
+    .grid{ grid-template-columns:repeat(2, 1fr); }
+  }
+
+  .stat{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:20px 16px;
+    text-align:center;
+    box-shadow: 0 14px 32px -22px rgba(0,0,0,0.5);
+  }
+  .stat .num{
+    font-family: Georgia, 'Times New Roman', 'Noto Serif', serif;
+    font-weight:600;
+    font-size:24px;
+    color:var(--text-hi);
+    font-variant-numeric: tabular-nums;
+  }
+  .stat .num.tick{ color:var(--sand); }
+  .stat .lbl{
+    font-size:12.5px;
+    color:var(--text-mid);
+    margin-top:4px;
+  }
+
+  .next-bday{
+    margin-top:20px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:18px 20px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:16px;
+    flex-wrap:wrap;
+    box-shadow: 0 14px 32px -22px rgba(0,0,0,0.5);
+  }
+  .next-bday .txt{
+    font-size:14px;
+    color:var(--text-mid);
+  }
+  .next-bday .txt b{
+    color:var(--text-hi);
+  }
+  .next-bday .days{
+    font-family: Georgia, 'Times New Roman', 'Noto Serif', serif;
+    font-size:22px;
+    font-weight:600;
+    color:var(--sand);
+  }
+
+  footer{
+    margin-top:48px;
+    text-align:center;
+    color:var(--text-low);
+    font-size:12.5px;
+  }
+
+  /* ===== theme variants ===== */
+  body.theme-rose{
+    --sand:#e88ba0;
+    --sand-soft: rgba(232,139,160,0.14);
+  }
+  body.theme-mint{
+    --sand:#7fd9b6;
+    --sand-soft: rgba(127,217,182,0.14);
+  }
+  body.theme-violet{
+    --sand:#b39ce8;
+    --sand-soft: rgba(179,156,232,0.14);
+  }
+  body.theme-sky{
+    --sand:#7db8e8;
+    --sand-soft: rgba(125,184,232,0.14);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="credit">
+    <span class="dot"></span>
+    Made by <b>Noor Ullah</b> — an independent project
+  </div>
+
+  <header class="hero">
+    <div class="kicker">Age Calculator</div>
+    <h1>Your age, down to the second</h1>
+    <p>Enter your date of birth (and birth time, if you'd like) — we'll show your exact age in years, months, weeks, days, hours, minutes and seconds, live.</p>
+  </header>
+
+  <form class="card" id="ageForm">
+    <div class="row2">
+      <div class="field">
+        <label for="dob">Date of birth</label>
+        <input type="date" id="dob" required>
+      </div>
+      <div class="field">
+        <label for="tob"><span>Birth time</span><span class="opt-tag">optional</span></label>
+        <input type="time" id="tob" step="1">
+      </div>
+    </div>
+
+    <div class="msg" id="errMsg"></div>
+
+    <div class="actions">
+      <button type="submit" class="primary">Calculate age</button>
+      <button type="button" class="ghost" id="resetBtn">Reset</button>
+    </div>
+
+    <div class="theme-row">
+      <span>Theme</span>
+      <div class="swatch active" data-theme="" style="background:#e8b360" title="Sand"></div>
+      <div class="swatch" data-theme="theme-rose" style="background:#e88ba0" title="Rose"></div>
+      <div class="swatch" data-theme="theme-mint" style="background:#7fd9b6" title="Mint"></div>
+      <div class="swatch" data-theme="theme-violet" style="background:#b39ce8" title="Violet"></div>
+      <div class="swatch" data-theme="theme-sky" style="background:#7db8e8" title="Sky"></div>
+    </div>
+  </form>
+
+  <section id="result">
+    <div class="lived-since">You've been alive since <b id="sinceDate">—</b></div>
+
+    <div class="big-age">
+      <div class="label">Total age</div>
+      <div class="value">
+        <span id="yrsBig">0</span><span class="unit">years</span>
+        <span id="mosBig">0</span><span class="unit">months</span>
+        <span id="daysBig">0</span><span class="unit">days</span>
+      </div>
+      <div class="sub" id="preciseNote"></div>
+    </div>
+
+    <div class="grid">
+      <div class="stat"><div class="num" id="weeks">0</div><div class="lbl">Weeks</div></div>
+      <div class="stat"><div class="num" id="daysTotal">0</div><div class="lbl">Days</div></div>
+      <div class="stat"><div class="num" id="hours">0</div><div class="lbl">Hours</div></div>
+      <div class="stat"><div class="num tick" id="minutes">0</div><div class="lbl">Minutes</div></div>
+      <div class="stat"><div class="num tick" id="seconds">0</div><div class="lbl">Seconds</div></div>
+      <div class="stat"><div class="num" id="months">0</div><div class="lbl">Months</div></div>
+      <div class="stat"><div class="num" id="quarters">0</div><div class="lbl">Quarters</div></div>
+      <div class="stat"><div class="num" id="dayOfWeek">—</div><div class="lbl">Day of birth</div></div>
+    </div>
+
+    <div class="next-bday">
+      <div class="txt">Time until next birthday: <b id="nextBdayDate">—</b></div>
+      <div class="days" id="nextBdayDays">— days</div>
+    </div>
+  </section>
+
+  <footer>This calculator uses your local time zone.</footer>
+</div>
+
+<script>
+(function(){
+  const form = document.getElementById('ageForm');
+  const dobInput = document.getElementById('dob');
+  const tobInput = document.getElementById('tob');
+  const errMsg = document.getElementById('errMsg');
+  const result = document.getElementById('result');
+  const resetBtn = document.getElementById('resetBtn');
+
+  let birthDate = null;
+  let tickHandle = null;
+
+  const dayNames = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
+  function showError(msg){
+    errMsg.textContent = msg;
+    errMsg.classList.add('show');
+  }
+  function clearError(){
+    errMsg.textContent = '';
+    errMsg.classList.remove('show');
+  }
+
+  function pad(n){ return String(n).padStart(2,'0'); }
+
+  function formatDateNice(d){
+    return d.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+  }
+
+  function calcCalendarDiff(from, to){
+    let years = to.getFullYear() - from.getFullYear();
+    let months = to.getMonth() - from.getMonth();
+    let days = to.getDate() - from.getDate();
+
+    if (days < 0){
+      months -= 1;
+      const prevMonth = new Date(to.getFullYear(), to.getMonth(), 0);
+      days += prevMonth.getDate();
+    }
+    if (months < 0){
+      years -= 1;
+      months += 12;
+    }
+    return { years, months, days };
+  }
+
+  function nextBirthday(from, now){
+    let next = new Date(now.getFullYear(), from.getMonth(), from.getDate());
+    if (next < now){
+      next = new Date(now.getFullYear()+1, from.getMonth(), from.getDate());
+    }
+    return next;
+  }
+
+  function tick(){
+    const now = new Date();
+    const diffMs = now - birthDate;
+
+    if (diffMs < 0){
+      showError('This date is in the future — please enter a valid date of birth.');
+      result.classList.remove('show');
+      if (tickHandle) clearInterval(tickHandle);
+      return;
+    }
+
+    const { years, months, days } = calcCalendarDiff(birthDate, now);
+
+    const totalSeconds = Math.floor(diffMs / 1000);
+    const totalMinutes = Math.floor(totalSeconds / 60);
+    const totalHours = Math.floor(totalMinutes / 60);
+    const totalDays = Math.floor(totalHours / 24);
+    const totalWeeks = Math.floor(totalDays / 7);
+    const totalMonthsApprox = years*12 + months;
+    const totalQuarters = Math.floor(totalMonthsApprox / 3);
+
+    document.getElementById('yrsBig').textContent = years;
+    document.getElementById('mosBig').textContent = months;
+    document.getElementById('daysBig').textContent = days;
+
+    document.getElementById('weeks').textContent = totalWeeks.toLocaleString();
+    document.getElementById('daysTotal').textContent = totalDays.toLocaleString();
+    document.getElementById('hours').textContent = totalHours.toLocaleString();
+    document.getElementById('minutes').textContent = totalMinutes.toLocaleString();
+    document.getElementById('seconds').textContent = totalSeconds.toLocaleString();
+    document.getElementById('months').textContent = totalMonthsApprox.toLocaleString();
+    document.getElementById('quarters').textContent = totalQuarters.toLocaleString();
+    document.getElementById('dayOfWeek').textContent = dayNames[birthDate.getDay()];
+
+    document.getElementById('sinceDate').textContent = formatDateNice(birthDate);
+
+    const hasTime = tobInput.value !== '';
+    document.getElementById('preciseNote').textContent = hasTime
+      ? 'Calculated precisely, including birth time.'
+      : 'Since no birth time was given, the day is assumed to start at 00:00.';
+
+    const nb = nextBirthday(birthDate, now);
+    const msToNext = nb - now;
+    const daysToNext = Math.ceil(msToNext / (1000*60*60*24));
+    document.getElementById('nextBdayDate').textContent = formatDateNice(nb);
+    document.getElementById('nextBdayDays').textContent = daysToNext + ' days';
+  }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    clearError();
+
+    if (!dobInput.value){
+      showError('Please enter your date of birth.');
+      return;
+    }
+
+    const [y,m,d] = dobInput.value.split('-').map(Number);
+    let hh=0, mm=0, ss=0;
+    if (tobInput.value){
+      const parts = tobInput.value.split(':').map(Number);
+      hh = parts[0] || 0;
+      mm = parts[1] || 0;
+      ss = parts[2] || 0;
+    }
+
+    const candidate = new Date(y, m-1, d, hh, mm, ss);
+    const now = new Date();
+
+    if (candidate > now){
+      showError('This date is in the future — please enter a valid date of birth.');
+      result.classList.remove('show');
+      return;
+    }
+
+    birthDate = candidate;
+    result.classList.add('show');
+
+    if (tickHandle) clearInterval(tickHandle);
+    tick();
+    tickHandle = setInterval(tick, 1000);
+  });
+
+  resetBtn.addEventListener('click', function(){
+    form.reset();
+    clearError();
+    result.classList.remove('show');
+    if (tickHandle) clearInterval(tickHandle);
+    birthDate = null;
+  });
+
+  document.querySelectorAll('.swatch').forEach(sw=>{
+    sw.addEventListener('click', function(){
+      document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('active'));
+      this.classList.add('active');
+      document.body.className = this.dataset.theme || '';
+    });
+  });
+})();
+</script>
+</body>
+</html>
